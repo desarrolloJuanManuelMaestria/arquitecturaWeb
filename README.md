@@ -434,8 +434,8 @@ Actualmente se encuentran implementados y validados:
 
 # 👨‍💻 Autores
 
-Juan Manuel Gutierrez
-Juan Andres Duarte Niño
-Lily Johana Castillo Forero
+- Juan Manuel Gutierrez
+- Juan Andres Duarte Niño
+- Lily Johana Castillo Forero
 
 Proyecto desarrollado como parte del proceso académico de formación en Arquitectura de Software.
