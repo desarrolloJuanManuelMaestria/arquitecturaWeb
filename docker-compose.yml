@@ -1,0 +1,43 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: products-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: products_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d products_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: products-backend
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: development
+      SERVER_ORIGIN: http://localhost:5000
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/products_db
+      LOG_PATH: logs
+      LOG_LEVEL: INFO
+      LOG_RETENTION_DAYS: 30
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+    - ./logs:/app/logs
+
+volumes:
+  postgres_data:
