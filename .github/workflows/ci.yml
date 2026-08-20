@@ -1,12 +1,9 @@
-"""
-Pipeline de integración continua.
-
-Este workflow valida que la aplicación pueda instalar sus dependencias
-y que sus principales módulos puedan ser importados correctamente.
-
-El pipeline se ejecuta automáticamente en cada push y pull request
-sobre la rama main.
-"""
+# Pipeline de integración continua.
+#
+# Este workflow valida que la aplicación pueda instalar sus dependencias
+# y que sus principales componentes puedan ser importados correctamente.
+#
+# Se ejecuta automáticamente en cada push y pull request sobre main.
 
 name: CI
 
@@ -20,41 +17,45 @@ on:
       - main
 
 jobs:
-
   validate:
     name: Validate application
 
     runs-on: ubuntu-latest
 
     steps:
-
+      # Descarga el código del repositorio.
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Configura la versión de Python utilizada por el proyecto.
       - name: Configure Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      # Instala las dependencias declaradas por la aplicación.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Verifica que la Application Factory pueda construirse.
       - name: Validate application imports
         env:
           DATABASE_URL: sqlite:///ci.db
         run: |
           python -c "from app import create_app; create_app(); print('Application OK')"
 
+      # Verifica que el schema GraphQL pueda construirse.
       - name: Validate GraphQL schema
         env:
           DATABASE_URL: sqlite:///ci.db
         run: |
-          python -c "from services.products.graphql.schema import schema; print(schema.graphql_schema)"
+          python -c "from services.products.graphql.schema import schema; print(schema.graphql_schema); print('GraphQL OK')"
 
+      # Verifica que Swagger pueda inicializarse junto con Flask.
       - name: Validate Swagger configuration
         env:
           DATABASE_URL: sqlite:///ci.db
         run: |
-          python -c "from app import create_app; app=create_app(); print('Swagger configuration OK')"
+          python -c "from app import create_app; create_app(); print('Swagger configuration OK')"
