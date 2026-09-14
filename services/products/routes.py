@@ -107,7 +107,7 @@ def create_product():
     """
     Crea un nuevo producto.
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     product = product_service.create(
         nombre=data["nombre"],
@@ -132,7 +132,7 @@ def update_product(product_id: int):
     """
     Actualiza un producto existente.
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     product = product_service.update(
         product_id=product_id,

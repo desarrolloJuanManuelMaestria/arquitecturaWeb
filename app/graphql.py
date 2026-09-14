@@ -32,7 +32,14 @@ def register_graphql(app: Flask) -> None:
             Respuesta HTTP con el resultado de GraphQL.
         """
 
-        data = request.get_json()
+        data = request.get_json(silent=True)
+
+        if not isinstance(data, dict) or not data.get("query"):
+            return jsonify({
+                "errors": [
+                    "La solicitud debe incluir una consulta GraphQL en el campo 'query'."
+                ]
+            }), 400
 
         result = schema.execute(
             data.get("query"),

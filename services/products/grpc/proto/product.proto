@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package products;
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+  rpc GetProduct(GetProductRequest) returns (ProductResponse);
+  rpc ListProducts(Empty) returns (ProductListResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+
+  // Mantiene una conexión abierta y envía eventos cuando un producto
+  // es creado, actualizado o eliminado mediante el servicio gRPC.
+  rpc WatchProducts(WatchProductsRequest) returns (stream ProductEvent);
+}
+
+message Empty {}
+
+message Product {
+  int32 id = 1;
+  string nombre = 2;
+  string descripcion = 3;
+  double precio = 4;
+}
+
+message CreateProductRequest {
+  string nombre = 1;
+  string descripcion = 2;
+  double precio = 3;
+}
+
+message GetProductRequest {
+  int32 id = 1;
+}
+
+message UpdateProductRequest {
+  int32 id = 1;
+  string nombre = 2;
+  string descripcion = 3;
+  double precio = 4;
+}
+
+message DeleteProductRequest {
+  int32 id = 1;
+}
+
+message ProductResponse {
+  Product product = 1;
+  string message = 2;
+}
+
+message ProductListResponse {
+  repeated Product products = 1;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message WatchProductsRequest {}
+
+enum ProductEventType {
+  PRODUCT_EVENT_TYPE_UNSPECIFIED = 0;
+  PRODUCT_CREATED = 1;
+  PRODUCT_UPDATED = 2;
+  PRODUCT_DELETED = 3;
+}
+
+message ProductEvent {
+  ProductEventType type = 1;
+  Product product = 2;
+  string message = 3;
+  int64 timestamp_unix_ms = 4;
+}

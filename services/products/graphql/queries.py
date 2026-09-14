@@ -10,6 +10,7 @@ base de datos.
 """
 
 import graphene
+from graphql import GraphQLError
 
 from services.products.graphql.types import ProductType
 from services.products.product_service import ProductService
@@ -66,5 +67,11 @@ class ProductQuery(graphene.ObjectType):
             Producto encontrado o None si no existe.
         """
         service = ProductService()
+        product = service.get_by_id(id)
 
-        return service.get_by_id(id)
+        if product is None:
+            raise GraphQLError(
+                f"Producto con id {id} no encontrado."
+            )
+
+        return product

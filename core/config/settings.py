@@ -58,5 +58,12 @@ class Settings:
             )
         )
 
+        self.grpc_port = int(
+            os.getenv(
+                "GRPC_PORT",
+                "50051",
+            )
+        )
+
 
 settings = Settings()

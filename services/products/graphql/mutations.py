@@ -9,6 +9,7 @@ No acceden directamente al repositorio ni a la base de datos.
 """
 
 import graphene
+from graphql import GraphQLError
 
 from services.products.graphql.types import ProductType
 from services.products.product_service import ProductService
@@ -139,13 +140,19 @@ class UpdateProduct(graphene.Mutation):
             Producto actualizado o None si no existe.
         """
         service = ProductService()
-
-        return service.update(
+        product = service.update(
             product_id=id,
             nombre=nombre,
             descripcion=descripcion,
             precio=precio,
         )
+
+        if product is None:
+            raise GraphQLError(
+                f"Producto con id {id} no encontrado."
+            )
+
+        return product
 
 
 class DeleteProduct(graphene.Mutation):
@@ -184,8 +191,14 @@ class DeleteProduct(graphene.Mutation):
             True si el producto fue eliminado correctamente.
         """
         service = ProductService()
+        deleted = service.delete(id)
 
-        return service.delete(id)
+        if not deleted:
+            raise GraphQLError(
+                f"Producto con id {id} no encontrado."
+            )
+
+        return True
 
 
 class ProductMutation(graphene.ObjectType):

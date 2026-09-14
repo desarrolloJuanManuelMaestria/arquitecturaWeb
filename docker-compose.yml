@@ -37,7 +37,28 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-    - ./logs:/app/logs
+      - ./logs:/app/logs
+
+  grpc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: products-grpc
+    restart: unless-stopped
+    command: ["python", "grpc_server.py"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/products_db
+      GRPC_PORT: 50051
+      LOG_PATH: logs
+      LOG_LEVEL: INFO
+      LOG_RETENTION_DAYS: 30
+    ports:
+      - "50051:50051"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
 
 volumes:
   postgres_data:

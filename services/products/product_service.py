@@ -10,6 +10,7 @@ puede realizar sobre un producto y registrar los eventos relevantes
 del dominio.
 """
 
+from services.products.exceptions import ProductValidationError
 from services.products.models.product_model import ProductModel
 from services.products.repositories.product_repository import ProductRepository
 
@@ -34,6 +35,35 @@ class ProductService:
         """
         self.repository = ProductRepository()
 
+    @staticmethod
+    def _validate_product_data(
+        nombre: str,
+        descripcion: str,
+        precio: float,
+    ) -> tuple[str, str, float]:
+        """Valida y normaliza los datos de entrada de un producto."""
+        if not isinstance(nombre, str) or not nombre.strip():
+            raise ProductValidationError(
+                "El nombre del producto es obligatorio."
+            )
+
+        if not isinstance(descripcion, str) or not descripcion.strip():
+            raise ProductValidationError(
+                "La descripción del producto es obligatoria."
+            )
+
+        if isinstance(precio, bool) or not isinstance(precio, (int, float)):
+            raise ProductValidationError(
+                "El precio del producto debe ser numérico."
+            )
+
+        if precio < 0:
+            raise ProductValidationError(
+                "El precio del producto no puede ser negativo."
+            )
+
+        return nombre.strip(), descripcion.strip(), float(precio)
+
     def create(
         self,
         nombre: str,
@@ -51,6 +81,12 @@ class ProductService:
         Returns:
             El producto creado y persistido.
         """
+        nombre, descripcion, precio = self._validate_product_data(
+            nombre,
+            descripcion,
+            precio,
+        )
+
         product = ProductModel(
             nombre=nombre,
             descripcion=descripcion,
@@ -140,6 +176,12 @@ class ProductService:
         Returns:
             El producto actualizado o None si no existe.
         """
+        nombre, descripcion, precio = self._validate_product_data(
+            nombre,
+            descripcion,
+            precio,
+        )
+
         product = self.repository.update(
             product_id,
             nombre,
